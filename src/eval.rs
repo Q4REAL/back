@@ -808,7 +808,7 @@ pub fn eval<'a>(
                         },
                         None => {
                             println!("\n---");
-                            println!("Error: stack underflow 1");
+                            println!("Error: stack underflow");
                             run = false;
                             0.0
                         }
@@ -854,7 +854,7 @@ pub fn eval<'a>(
                                 },
                                 None => {
                                     println!("\n---");
-                                    println!("Error: stack underflow 2");
+                                    println!("Error: stack underflow");
                                     run = false;
                                     cnt
                                 }

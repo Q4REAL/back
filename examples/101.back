@@ -1,0 +1,75 @@
+# comments are made with pound signs #
+# run a file with back run -f path/to/file.back #
+
+# spaces are not optional! each operator needs to be surrounded by spaces #
+
+# brackets push to the stack #
+[ 1 ] 
+
+# these two are just as valid #
+[ 1 ] [ 2 ]
+[ 1 2 ]
+
+# operations pop from the stack and push new values #
+# operations are done in RPN #
+[ 1 2 ] + # 3 #
+[ 4 2 ] / # 2 #
+
+[ spaces~are~made~with~tildes ]
+
+# printing is done with -> (for print) and ->> (for print with a newline) #
+[ this~is~a~test ] ->> # this is a test #
+
+# terminal input is taken with <- (which inserts ~ for spaces) 
+and <<- (which pushes space seperated input seperately) #
+<- # user enters 3 # [ 2 ] + ->> # 5 is printed #
+
+# words (functions) are defined like so, staring with : and ending with ; #
+: add_5 [ 5 ] + ;
+
+[ 2 ] add_5 # pushes 7 #
+
+# <, >, !=, and = push true or false to the stack. #
+[ 1 1 ] = # true #
+
+# commands in if only run if the top of the stack contains true (if pops the top value) #
+# if is started with ? and ends in ; #
+# this only runs if the user types 1 into the terminal #
+<-
+
+[ 1 ] = ? 
+  [ user~typed~1! ] ->>
+;
+
+# repetion takes the top number of the stack and repeats the following commands that many times. #
+# started with &, ended with ; #
+5 &
+    [ repeated!] ->>
+;
+
+# the program starts on the main stack, but this can be changed with $$ and $ #
+[ new_stack ] $$ # make a new stack #
+
+[ 1 ]
+
+[ new_stack ] $ # move to the new stack #
+
+[ 2 ]
+
+[ main ] $
+
+->> # 1 #
+
+# the top item of the stack can be dropped with ! and dublicated with ** #
+[ 2 ] ** + ->> # 4 #
+
+# items can be moved between stacks with $> #
+[ new_stack ] $$
+
+[ 5 ] [ new_stack ] $> # main is now empty, new stack_contains 5 #
+
+# stack items can be concatinated with .. #
+[ 5 6 ] .. ->> # 56 #
+
+# litteral printing does not substitute ~ for space #
+[ example~text ] =>> # example~text #
