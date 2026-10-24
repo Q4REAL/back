@@ -144,6 +144,9 @@ pub fn eval<'a>(
                 }
                 (true, wstack)
             } // literal input
+            "<->" => {
+                stacks.get_mut(&wstack).unwrap().push(stacks.get(&wstack).unwrap().len().to_string());
+            } //len
             "**" => {
                 let mut run = true;
                 let val = match stacks.get_mut(&wstack).unwrap().pop() {
