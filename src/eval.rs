@@ -54,6 +54,7 @@ pub fn init(stacks: &mut HashMap<String, Vec<String>>, dictionary: &mut HashMap<
     dictionary.insert("!".to_string(), Vec::new());
     dictionary.insert("&".to_string(), Vec::new());
     dictionary.insert("[".to_string(), Vec::new());
+    dictionary.insert("<->".to_string(), Vec::new());
 }
 
 pub fn eval<'a>(
