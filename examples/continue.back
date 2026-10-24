@@ -1,0 +1,10 @@
+[ back_rep ] $
+
+[ 1 ] &
+    [ continue~the~program?~(y/n): ] ->>
+    <- [ y ] = ?
+        [ continuing... ] ->>
+        ! [ -1 ]
+    ;
+;
+[ ending. ] ->>

@@ -1,0 +1,18 @@
+# nested defs! #
+: def_1 [ 2 ] : def_2 ** : def_3 * ; def_3 ; def_2 ;
+    
+def_1 ->>
+[ ~ ] ->>
+
+: recursive 
+    ** [ 1 ] = ?
+        [ done! ] ->>
+    ;
+    ** [ 1 ] != ?
+        [ still~going... ] ->>
+        [ 1 ] -
+        recursive
+    ;
+;
+    
+[ 5 ] recursive
