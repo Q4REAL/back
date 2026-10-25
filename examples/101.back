@@ -73,3 +73,5 @@ and <<- (which pushes space seperated input seperately) #
 
 # litteral printing does not substitute ~ for space #
 [ example~text ] =>> # example~text #
+
+# <-> pushes the length of the working stack #

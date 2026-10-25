@@ -27,8 +27,10 @@ This language intents to be feature complete, even if it's not really that usabl
 - [x] control flow, built-in operations, stack managment
 - [x] verbose mode and basic error handling
 - [x] external dependencies
+- [ ] improved pattern matching
+- [ ] dependency registery (backpack package managment)
 - [ ] more advanced type control (like checking for numbers)
-- [x] actually helpful error messages
+- [ ] actually helpful error messages
 - [ ] advanced error handling
 - [ ] a readable verbose mode
 - [ ] FFI?
