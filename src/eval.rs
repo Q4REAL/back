@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 use std::io;
 use std::io::Write;
+use dirs::home_dir;
+use std::path::Path;
 
 pub enum Mode {
     Normal,
@@ -13,8 +15,8 @@ pub enum Mode {
 
 #[derive(Debug)]
 pub struct Word {
-    name: String,
-    data: Vec<String>,
+    pub name: String,
+    pub data: Vec<String>,
 }
 
 impl Word {
@@ -146,7 +148,9 @@ pub fn eval<'a>(
                 (true, wstack)
             } // literal input
             "<->" => {
-                stacks.get_mut(&wstack).unwrap().push(stacks.get(&wstack).unwrap().len().to_string());
+                let len = stacks.get(&wstack).unwrap().len();
+                stacks.get_mut(&wstack).unwrap().push(len.to_string());
+                (true, wstack)
             } //len
             "**" => {
                 let mut run = true;
@@ -693,7 +697,48 @@ pub fn eval<'a>(
                 *mode = Mode::Push;
                 (true, wstack)
             }
-            // "@" => { } // load external words
+            "@" => {
+                match stacks.get_mut(&wstack).unwrap().pop() {
+                    Some(v) => {
+                        match home_dir() {
+                            Some(p) => {
+                                let path = p.join(Path::new(&format!(".backdeps/{}", v)));
+                                if path.exists() && path.is_dir() {
+                                    let _ = crate::dep_man::open_dirs(&path, dictionary);
+                                    (true, wstack)
+                                } else {
+                                    let mut pathf = path.clone();
+                                    pathf.add_extension("back");
+                                    if pathf.exists() && pathf.is_file() {
+                                        crate::dep_man::open_file(&pathf, None, dictionary);
+                                        (true, wstack)
+                                    } else {
+                                        if path.parent().unwrap().with_extension("back").exists() && path.parent().unwrap().with_extension("back").is_file() {
+                                            crate::dep_man::open_file(&path.parent().unwrap().with_extension("back"), Some(&path.file_name().unwrap().to_string_lossy()), dictionary);
+                                            (true, wstack)
+                                        } else {
+                                            println!("\n---");
+                                            println!("Error: dep could not be resolved");
+                                            (false, wstack)
+                                        }
+                                    }
+                                }
+                                
+                            }
+                            None => {
+                                println!("\n---");
+                                println!("Error: home dir could not be determined");
+                                (false, wstack)
+                            }
+                        }
+                    }
+                    None => {
+                        println!("\n---");
+                        println!("Error: stack underflow");
+                        (false, wstack)
+                    }
+                }
+            }
             _ => {
                 if dictionary.contains_key(&word.to_string()) {
                     let mut run: bool = true;
