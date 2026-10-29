@@ -26,11 +26,11 @@ See the examples folder for a guide on syntax.
 ## Installing back
 On MacOS/Linux:
 ```shell
-curl --proto '=https' --tlsv1.2 -LsSf https://github.com/Q4REAL/back/releases/download/v0.2.0/back-installer.sh | sh
+curl --proto '=https' --tlsv1.2 -LsSf https://github.com/Q4REAL/back/releases/download/v0.3.0/back-installer.sh | sh
 ```
 Powershell (Windows):
 ```powershell
-powershell -ExecutionPolicy Bypass -c "irm https://github.com/Q4REAL/back/releases/download/v0.2.0/back-installer.ps1 | iex"
+powershell -ExecutionPolicy Bypass -c "irm https://github.com/Q4REAL/back/releases/download/v0.3.0/back-installer.ps1 | iex"
 ```
 ## Usage
 to start, create a .back file (or download one from the examples directory). Run it with
