@@ -57,6 +57,7 @@ pub fn init(stacks: &mut HashMap<String, Vec<String>>, dictionary: &mut HashMap<
     dictionary.insert("&".to_string(), Vec::new());
     dictionary.insert("[".to_string(), Vec::new());
     dictionary.insert("<->".to_string(), Vec::new());
+    dictionary.insert("%".to_string(), Vec::new());
 }
 
 pub fn eval<'a>(
@@ -371,6 +372,50 @@ pub fn eval<'a>(
                         .get_mut(&wstack)
                         .unwrap()
                         .push(format!("{}", num2 / num1));
+                    (true, wstack)
+                }
+            }
+            "%" => {
+                let mut num1 = 0.0;
+                let mut num2 = 0.0;
+                let mut run = true;
+                match stacks.get_mut(&wstack).unwrap().pop() {
+                    Some(v) => match v.parse::<f64>() {
+                        Ok(v) => num1 = v,
+                        Err(_) => {
+                            println!("\n---");
+                            println!("Error: attempted to div a non-number");
+                            run = false;
+                        }
+                    },
+                    None => {
+                        println!("\n---");
+                        println!("Error: stack underflow");
+                        run = false;
+                    }
+                }
+                match stacks.get_mut(&wstack).unwrap().pop() {
+                    Some(v) => match v.parse::<f64>() {
+                        Ok(v) => num2 = v,
+                        Err(_) => {
+                            println!("\n---");
+                            println!("Error: attempted to add a non-number");
+                            run = false;
+                        }
+                    },
+                    None => {
+                        println!("\n---");
+                        println!("Error: stack underflow");
+                        run = false;
+                    }
+                }
+                if run == false {
+                    (false, wstack)
+                } else {
+                    stacks
+                        .get_mut(&wstack)
+                        .unwrap()
+                        .push(format!("{}", num2 % num1));
                     (true, wstack)
                 }
             }
