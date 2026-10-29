@@ -58,6 +58,7 @@ pub fn init(stacks: &mut HashMap<String, Vec<String>>, dictionary: &mut HashMap<
     dictionary.insert("[".to_string(), Vec::new());
     dictionary.insert("<->".to_string(), Vec::new());
     dictionary.insert("%".to_string(), Vec::new());
+    dictionary.insert("!$!".to_string(), Vec::new());
 }
 
 pub fn eval<'a>(
@@ -253,7 +254,7 @@ pub fn eval<'a>(
                         Ok(v) => num1 = v,
                         Err(_) => {
                             println!("\n---");
-                            println!("Error on line {}, word {}: attempted to min a non-number", line + 1, word);
+                            println!("Error on line {}, word {}: attempted to subtract a non-number", line + 1, word);
                             run = false;
                         }
                     },
@@ -268,7 +269,7 @@ pub fn eval<'a>(
                         Ok(v) => num2 = v,
                         Err(_) => {
                             println!("\n---");
-                            println!("Error on line {}, word {}: attempted to add a non-number", line + 1, word);
+                            println!("Error on line {}, word {}: attempted to subtract a non-number", line + 1, word);
                             run = false;
                         }
                     },
@@ -297,7 +298,7 @@ pub fn eval<'a>(
                         Ok(v) => num1 = v,
                         Err(_) => {
                             println!("\n---");
-                            println!("Error on line {}, word {}: attempted to mult a non-number", line + 1, word);
+                            println!("Error on line {}, word {}: attempted to multiply a non-number", line + 1, word);
                             run = false;
                         }
                     },
@@ -312,7 +313,7 @@ pub fn eval<'a>(
                         Ok(v) => num2 = v,
                         Err(_) => {
                             println!("\n---");
-                            println!("Error on line {}, word {}: attempted to add a non-number", line + 1, word);
+                            println!("Error on line {}, word {}: attempted to multiply a non-number", line + 1, word);
                             run = false;
                         }
                     },
@@ -341,7 +342,7 @@ pub fn eval<'a>(
                         Ok(v) => num1 = v,
                         Err(_) => {
                             println!("\n---");
-                            println!("Error on line {}, word {}: attempted to div a non-number", line + 1, word);
+                            println!("Error on line {}, word {}: attempted to divide a non-number", line + 1, word);
                             run = false;
                         }
                     },
@@ -356,7 +357,7 @@ pub fn eval<'a>(
                         Ok(v) => num2 = v,
                         Err(_) => {
                             println!("\n---");
-                            println!("Error on line {}, word {}: attempted to add a non-number", line + 1, word);
+                            println!("Error on line {}, word {}: attempted to divide a non-number", line + 1, word);
                             run = false;
                         }
                     },
@@ -385,7 +386,7 @@ pub fn eval<'a>(
                         Ok(v) => num1 = v,
                         Err(_) => {
                             println!("\n---");
-                            println!("Error on line {}, word {}: attempted to div a non-number", line + 1, word);
+                            println!("Error on line {}, word {}: attempted to modulo a non-number", line + 1, word);
                             run = false;
                         }
                     },
@@ -400,7 +401,7 @@ pub fn eval<'a>(
                         Ok(v) => num2 = v,
                         Err(_) => {
                             println!("\n---");
-                            println!("Error on line {}, word {}: attempted to add a non-number", line + 1, word);
+                            println!("Error on line {}, word {}: attempted to modulo a non-number", line + 1, word);
                             run = false;
                         }
                     },
@@ -417,6 +418,50 @@ pub fn eval<'a>(
                         .get_mut(&wstack)
                         .unwrap()
                         .push(format!("{}", num2 % num1));
+                    (true, wstack)
+                }
+            }
+            "//" => {
+                let mut num1 = 0.0;
+                let mut num2 = 0.0;
+                let mut run = true;
+                match stacks.get_mut(&wstack).unwrap().pop() {
+                    Some(v) => match v.parse::<f64>() {
+                        Ok(v) => num1 = v,
+                        Err(_) => {
+                            println!("\n---");
+                            println!("Error on line {}, word {}: attempted to divide a non-number", line + 1, word);
+                            run = false;
+                        }
+                    },
+                    None => {
+                        println!("\n---");
+                        println!("Error on line {}, word {}: stack underflow", line + 1, word);
+                        run = false;
+                    }
+                }
+                match stacks.get_mut(&wstack).unwrap().pop() {
+                    Some(v) => match v.parse::<f64>() {
+                        Ok(v) => num2 = v,
+                        Err(_) => {
+                            println!("\n---");
+                            println!("Error on line {}, word {}: attempted to divide a non-number", line + 1, word);
+                            run = false;
+                        }
+                    },
+                    None => {
+                        println!("\n---");
+                        println!("Error on line {}, word {}: stack underflow", line + 1, word);
+                        run = false;
+                    }
+                }
+                if run == false {
+                    (false, wstack)
+                } else {
+                    stacks
+                        .get_mut(&wstack)
+                        .unwrap()
+                        .push(format!("{}", (num2 / num1).trunc()));
                     (true, wstack)
                 }
             }
@@ -541,6 +586,7 @@ pub fn eval<'a>(
                 }
             }
             "=" => {
+                // nums and strs kept around in case a type system ever arises
                 let mut num1 = 0.0;
                 let mut str1 = String::new();
                 let mut num2 = 0.0;
@@ -715,6 +761,33 @@ pub fn eval<'a>(
                     (false, wstack)
                 }
             },
+            "!$!" => match stacks.get_mut(&wstack).unwrap().pop() {
+                Some(v) => {
+                    if stacks.contains_key(&v) {
+                        if v == String::from("main") || v == String::from("back_rep") || v == String::from("back_block") {
+                            println!("\n---");
+                            println!("Error on line {}, word {}: attempted to delete a vital stack", line + 1, word);
+                            (false, wstack)
+                        } else {
+                            stacks.remove(&v);
+                            (true, "main".to_string())
+                        }
+                    } else {
+                        println!("\n---");
+                        println!("Error on line {}, word {}: stack does not exist", line + 1, word);
+                        (false, wstack)
+                    }
+                }
+                None => {
+                    println!("\n---");
+                    println!("Error on line {}, word {}: stack underflow", line + 1, word);
+                    (false, wstack)
+                }
+            }
+            "$**" => {
+                stacks.get_mut(&wstack).unwrap().push(wstack.clone());
+                (true, wstack)
+            } // push stack name
             "$>" => match stacks.get_mut(&wstack).unwrap().pop() {
                 Some(s) => match stacks.get_mut(&wstack).unwrap().pop() {
                     Some(v) => {
@@ -732,13 +805,39 @@ pub fn eval<'a>(
                         println!("Error on line {}, word {}: stack underflow", line + 1, word);
                         (false, wstack)
                     }
-                },
+                }, 
                 None => {
                     println!("\n---");
                     println!("Error on line {}, word {}: stack underflow", line + 1, word);
                     (false, wstack)
                 }
             },
+            "$<" => match stacks.get_mut(&wstack).unwrap().pop() {
+                Some(s) => {
+                    if stacks.contains_key(&s) {
+                        match stacks.get_mut(&s).unwrap().pop() {
+                            Some(v) => {
+                                stacks.get_mut(&wstack).unwrap().push(v);
+                                (true, wstack)
+                            }
+                            None => {
+                                println!("\n---");
+                                println!("Error on line {}, word {}: stack underflow in pulling stack", line + 1, word);
+                                (false, wstack)
+                            }
+                        }
+                    } else {
+                        println!("\n---");
+                        println!("Error on line {}, word {}: stack does not exist", line + 1, word);
+                        (false, wstack)
+                    }
+                },
+                None => {
+                    println!("\n---");
+                    println!("Error on line {}, word {}: stack underflow", line + 1, word);
+                    (false, wstack)
+                }
+            }, // pulls from provided stack
             "[" => {
                 *mode = Mode::Push;
                 (true, wstack)
