@@ -8,7 +8,7 @@ use std::io::ErrorKind;
 use dirs::home_dir;
 use crate::eval::Word;
 
-pub fn open_dirs(path: &Path, dictionary: &mut HashMap<String, Vec<String>>) -> io::Result<()> {
+pub fn open_dirs(path: &Path, dictionary: &mut HashMap<String, Vec<(String, usize)>>) -> io::Result<()> {
     for node in fs::read_dir(path)? {
         match node {
             Ok(n) => {
@@ -32,7 +32,7 @@ pub fn open_dirs(path: &Path, dictionary: &mut HashMap<String, Vec<String>>) -> 
     Ok(())
 }
 
-pub fn open_file(path: &Path, request: Option<&str>, dictionary: &mut HashMap<String, Vec<String>>) {
+pub fn open_file(path: &Path, request: Option<&str>, dictionary: &mut HashMap<String, Vec<(String, usize)>>) {
     match home_dir() {
         Some(home) => {
             match File::open(path) {
@@ -56,7 +56,7 @@ pub fn open_file(path: &Path, request: Option<&str>, dictionary: &mut HashMap<St
                                                 def.name = word.to_string();
                                             }
                                         } else {
-                                            def.data.push(word.to_string())
+                                            def.data.push((word.to_string(), index))
                                         }
                                     }
                                     i += 1;
@@ -114,6 +114,7 @@ pub fn process_dep(dep_path: &Path) -> io::Result<()> {
             let home = op_home.unwrap();
             match File::open(&dep_path) {
                 Ok(f) => {
+                    println!("{}", dep_path.parent().unwrap().display());
                     fs::create_dir_all( home.join(format!(".backdeps/{}", dep_path.parent().unwrap().strip_prefix(&home).unwrap().display())))?;
                     parse_file(f, Path::new(&home.join(format!(".backdeps/{}", dep_path.strip_prefix(&home).unwrap().display()))));
                 },

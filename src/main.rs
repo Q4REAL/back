@@ -33,16 +33,16 @@ fn main() {
     let args = Args::parse();
     match args.sub {
         Subs::Run { file , verbose} => {
-            let mut dictionary: HashMap<String, Vec<String>> = HashMap::new();
+            let mut dictionary: HashMap<String, Vec<(String, usize)>> = HashMap::new();
             let mut stacks: HashMap<String, Vec<String>> = HashMap::new();
             let mut wstack: String = "main".to_string();
             let mut run: bool = true;
-            let mut ifd: Vec<String> = Vec::new();
-            let mut rep: Vec<String> = Vec::new();
+            let mut ifd: Vec<(String, usize)> = Vec::new();
+            let mut rep: Vec<(String, usize)> = Vec::new();
             let mut mode: eval::Mode = eval::Mode::Normal;
             let mut def: eval::Word = eval::Word::blank();
             eval::init(&mut stacks, &mut dictionary);
-            
+             
             let f = match File::open(file) {
                 Ok(f) => f,
                 Err(e) => {println!("Error: {}", e); return;},
@@ -63,9 +63,9 @@ fn main() {
                                 &mut mode,
                                 &mut def,
                                 verbose,
+                                index
                             );
                             if !run {
-                                println!("line {}, word: {}", index + 1, item);
                                 break;
                             }
                         }

@@ -16,7 +16,7 @@ pub enum Mode {
 #[derive(Debug)]
 pub struct Word {
     pub name: String,
-    pub data: Vec<String>,
+    pub data: Vec<(String, usize)>,
 }
 
 impl Word {
@@ -28,7 +28,7 @@ impl Word {
     }
 }
 
-pub fn init(stacks: &mut HashMap<String, Vec<String>>, dictionary: &mut HashMap<String, Vec<String>>) {
+pub fn init(stacks: &mut HashMap<String, Vec<String>>, dictionary: &mut HashMap<String, Vec<(String, usize)>>) {
     stacks.insert("main".to_string(), Vec::new());
     stacks.insert("back_rep".to_string(), Vec::new());
     stacks.insert("back_block".to_string(), Vec::new());
@@ -64,12 +64,13 @@ pub fn eval<'a>(
     word: &'a str,
     stacks: &mut HashMap<String, Vec<String>>,
     wstack: String,
-    ifd: &mut Vec<String>,
-    rep: &mut Vec<String>,
-    dictionary: &mut HashMap<String, Vec<String>>,
+    ifd: &mut Vec<(String, usize)>,
+    rep: &mut Vec<(String, usize)>,
+    dictionary: &mut HashMap<String, Vec<(String, usize)>>,
     mode: &mut Mode,
     def: &mut Word,
     verbose: bool,
+    line: usize,
 ) -> (bool, String) {
     if verbose {
         println!(
@@ -87,7 +88,7 @@ pub fn eval<'a>(
                 }
                 None => {
                     println!("\n---");
-                    println!("Error: stack underflow");
+                    println!("Error on line {}, word {}: stack underflow", line + 1, word);
                     (false, wstack)
                 }
             }, // print
@@ -98,7 +99,7 @@ pub fn eval<'a>(
                 }
                 None => {
                     println!("\n---");
-                    println!("Error: stack underflow");
+                    println!("Error on line {}, word {}: stack underflow", line + 1, word);
                     (false, wstack)
                 }
             }, // litteral print
@@ -110,7 +111,7 @@ pub fn eval<'a>(
                 }
                 None => {
                     println!("\n---");
-                    println!("Error: stack underflow");
+                    println!("Error on line {}, word {}: stack underflow", line + 1, word);
                     (false, wstack)
                 }
             }, // println
@@ -121,7 +122,7 @@ pub fn eval<'a>(
                 }
                 None => {
                     println!("\n---");
-                    println!("Error: stack underflow");
+                    println!("Error on line {}, word {}: stack underflow", line + 1, word);
                     (false, wstack)
                 }
             }, // literal println
@@ -159,7 +160,7 @@ pub fn eval<'a>(
                     Some(v) => v,
                     None => {
                         println!("\n---");
-                        println!("Error: stack underflow");
+                        println!("Error on line {}, word {}: stack underflow", line + 1, word);
                         run = false;
                         "".to_string()
                     }
@@ -178,7 +179,7 @@ pub fn eval<'a>(
                     Some(v) => v,
                     None => { 
                         println!("\n---");
-                        println!("Error: stack underflow");
+                        println!("Error on line {}, word {}: stack underflow", line + 1, word);
                         run = false;
                         "".to_string()
                     }
@@ -187,7 +188,7 @@ pub fn eval<'a>(
                     Some(v) => v,
                     None => { 
                         println!("\n---");
-                        println!("Error: stack underflow");
+                        println!("Error on line {}, word {}: stack underflow", line + 1, word);
                         run = false;
                         "".to_string()
                     }
@@ -208,13 +209,13 @@ pub fn eval<'a>(
                         Ok(v) => num1 = v,
                         Err(_) => {
                             println!("\n---");
-                            println!("Error: attempted to add a non-number");
+                            println!("Error on line {}, word {}: attempted to add a non-number", line + 1, word);
                             run = false;
                         }
                     },
                     None => {
                         println!("\n---");
-                        println!("Error: stack underflow");
+                        println!("Error on line {}, word {}: stack underflow", line + 1, word);
                         run = false;
                     }
                 }
@@ -223,13 +224,13 @@ pub fn eval<'a>(
                         Ok(v) => num2 = v,
                         Err(_) => {
                             println!("\n---");
-                            println!("Error: attempted to add a non-number");
+                            println!("Error on line {}, word {}: attempted to add a non-number", line + 1, word);
                             run = false;
                         }
                     },
                     None => {
                         println!("\n---");
-                        println!("Error: stack underflow");
+                        println!("Error on line {}, word {}: stack underflow", line + 1, word);
                         run = false;
                     }
                 }
@@ -252,13 +253,13 @@ pub fn eval<'a>(
                         Ok(v) => num1 = v,
                         Err(_) => {
                             println!("\n---");
-                            println!("Error: attempted to min a non-number");
+                            println!("Error on line {}, word {}: attempted to min a non-number", line + 1, word);
                             run = false;
                         }
                     },
                     None => {
                         println!("\n---");
-                        println!("Error: stack underflow");
+                        println!("Error on line {}, word {}: stack underflow", line + 1, word);
                         run = false;
                     }
                 }
@@ -267,13 +268,13 @@ pub fn eval<'a>(
                         Ok(v) => num2 = v,
                         Err(_) => {
                             println!("\n---");
-                            println!("Error: attempted to add a non-number");
+                            println!("Error on line {}, word {}: attempted to add a non-number", line + 1, word);
                             run = false;
                         }
                     },
                     None => {
                         println!("\n---");
-                        println!("Error: stack underflow");
+                        println!("Error on line {}, word {}: stack underflow", line + 1, word);
                         run = false;
                     }
                 }
@@ -296,13 +297,13 @@ pub fn eval<'a>(
                         Ok(v) => num1 = v,
                         Err(_) => {
                             println!("\n---");
-                            println!("Error: attempted to mult a non-number");
+                            println!("Error on line {}, word {}: attempted to mult a non-number", line + 1, word);
                             run = false;
                         }
                     },
                     None => {
                         println!("\n---");
-                        println!("Error: stack underflow");
+                        println!("Error on line {}, word {}: stack underflow", line + 1, word);
                         run = false;
                     }
                 }
@@ -311,13 +312,13 @@ pub fn eval<'a>(
                         Ok(v) => num2 = v,
                         Err(_) => {
                             println!("\n---");
-                            println!("Error: attempted to add a non-number");
+                            println!("Error on line {}, word {}: attempted to add a non-number", line + 1, word);
                             run = false;
                         }
                     },
                     None => {
                         println!("\n---");
-                        println!("Error: stack underflow");
+                        println!("Error on line {}, word {}: stack underflow", line + 1, word);
                         run = false;
                     }
                 }
@@ -340,13 +341,13 @@ pub fn eval<'a>(
                         Ok(v) => num1 = v,
                         Err(_) => {
                             println!("\n---");
-                            println!("Error: attempted to div a non-number");
+                            println!("Error on line {}, word {}: attempted to div a non-number", line + 1, word);
                             run = false;
                         }
                     },
                     None => {
                         println!("\n---");
-                        println!("Error: stack underflow");
+                        println!("Error on line {}, word {}: stack underflow", line + 1, word);
                         run = false;
                     }
                 }
@@ -355,13 +356,13 @@ pub fn eval<'a>(
                         Ok(v) => num2 = v,
                         Err(_) => {
                             println!("\n---");
-                            println!("Error: attempted to add a non-number");
+                            println!("Error on line {}, word {}: attempted to add a non-number", line + 1, word);
                             run = false;
                         }
                     },
                     None => {
                         println!("\n---");
-                        println!("Error: stack underflow");
+                        println!("Error on line {}, word {}: stack underflow", line + 1, word);
                         run = false;
                     }
                 }
@@ -384,13 +385,13 @@ pub fn eval<'a>(
                         Ok(v) => num1 = v,
                         Err(_) => {
                             println!("\n---");
-                            println!("Error: attempted to div a non-number");
+                            println!("Error on line {}, word {}: attempted to div a non-number", line + 1, word);
                             run = false;
                         }
                     },
                     None => {
                         println!("\n---");
-                        println!("Error: stack underflow");
+                        println!("Error on line {}, word {}: stack underflow", line + 1, word);
                         run = false;
                     }
                 }
@@ -399,13 +400,13 @@ pub fn eval<'a>(
                         Ok(v) => num2 = v,
                         Err(_) => {
                             println!("\n---");
-                            println!("Error: attempted to add a non-number");
+                            println!("Error on line {}, word {}: attempted to add a non-number", line + 1, word);
                             run = false;
                         }
                     },
                     None => {
                         println!("\n---");
-                        println!("Error: stack underflow");
+                        println!("Error on line {}, word {}: stack underflow", line + 1, word);
                         run = false;
                     }
                 }
@@ -439,13 +440,13 @@ pub fn eval<'a>(
                     }
                     _ => {
                         println!("\n---");
-                        println!("Error: attempted to use ? on a non-boolean");
+                        println!("Error on line {}, word {}: attempted to use ? on a non-boolean", line + 1, word);
                         (false, wstack)
                     }
                 },
                 None => {
                     println!("\n---");
-                    println!("Error: stack underflow");
+                    println!("Error on line {}, word {}: stack underflow", line + 1, word);
                     (false, wstack)
                 }
             }, // if
@@ -458,13 +459,13 @@ pub fn eval<'a>(
                         Ok(v) => num1 = v,
                         Err(_) => {
                             println!("\n---");
-                            println!("Error: tried to use > on a non-number");
+                            println!("Error on line {}, word {}: tried to use > on a non-number", line + 1, word);
                             run = false;
                         }
                     },
                     None => {
                         println!("\n---");
-                        println!("Error: stack underflow");
+                        println!("Error on line {}, word {}: stack underflow", line + 1, word);
                         run = false;
                     }
                 }
@@ -473,13 +474,13 @@ pub fn eval<'a>(
                         Ok(v) => num2 = v,
                         Err(_) => {
                             println!("\n---");
-                            println!("Error: tried to use > on a non-number");
+                            println!("Error on line {}, word {}: tried to use > on a non-number", line + 1, word);
                             run = false;
                         }
                     },
                     None => {
                         println!("\n---");
-                        println!("Error: stack underflow");
+                        println!("Error on line {}, word {}: stack underflow", line + 1, word);
                         run = false;
                     }
                 }
@@ -503,13 +504,13 @@ pub fn eval<'a>(
                         Ok(v) => num1 = v,
                         Err(_) => {
                             println!("\n---");
-                            println!("Error: tried to use < on a non-number");
+                            println!("Error on line {}, word {}: tried to use < on a non-number", line + 1, word);
                             run = false;
                         }
                     },
                     None => {
                         println!("\n---");
-                        println!("Error: stack underflow");
+                        println!("Error on line {}, word {}: stack underflow", line + 1, word);
                         run = false;
                     }
                 }
@@ -518,13 +519,13 @@ pub fn eval<'a>(
                         Ok(v) => num2 = v,
                         Err(_) => {
                             println!("\n---");
-                            println!("Error: tried to use > on a non-number");
+                            println!("Error on line {}, word {}: tried to use > on a non-number", line + 1, word);
                             run = false;
                         }
                     },
                     None => {
                         println!("\n---");
-                        println!("Error: stack underflow");
+                        println!("Error on line {}, word {}: stack underflow", line + 1, word);
                         run = false;
                     }
                 }
@@ -556,7 +557,7 @@ pub fn eval<'a>(
                     },
                     None => {
                         println!("\n---");
-                        println!("Error: stack underflow");
+                        println!("Error on line {}, word {}: stack underflow", line + 1, word);
                         run = false;
                     }
                 }
@@ -570,7 +571,7 @@ pub fn eval<'a>(
                     },
                     None => {
                         println!("\n---");
-                        println!("Error: stack underflow");
+                        println!("Error on line {}, word {}: stack underflow", line + 1, word);
                         run = false;
                     }
                 }
@@ -610,7 +611,7 @@ pub fn eval<'a>(
                     },
                     None => {
                         println!("\n---");
-                        println!("Error: stack underflow");
+                        println!("Error on line {}, word {}: stack underflow", line + 1, word);
                         run = false;
                     }
                 }
@@ -624,7 +625,7 @@ pub fn eval<'a>(
                     },
                     None => {
                         println!("\n---");
-                        println!("Error: stack underflow");
+                        println!("Error on line {}, word {}: stack underflow", line + 1, word);
                         run = false;
                     }
                 }
@@ -661,19 +662,19 @@ pub fn eval<'a>(
                             }
                             Err(_) => {
                                 println!("\n---");
-                                println!("Error: rep must take a number");
+                                println!("Error on line {}, word {}: rep must take a number", line + 1, word);
                                 (false, wstack)
                             }
                         }
                     } else {
                         println!("\n---");
-                        println!("Error: rep stack is nonexistant");
+                        println!("Error on line {}, word {}: rep stack is nonexistant", line + 1, word);
                         (false, wstack)
                     }
                 }
                 None => {
                     println!("\n---");
-                    println!("Error: stack underflow");
+                    println!("Error on line {}, word {}: stack underflow", line + 1, word);
                     (false, wstack)
                 }
             }, // for
@@ -686,7 +687,7 @@ pub fn eval<'a>(
                 }
                 None => {
                     println!("\n---");
-                    println!("Error: stack underflow");
+                    println!("Error on line {}, word {}: stack underflow", line + 1, word);
                     (false, wstack)
                 }
             }, // new stack
@@ -696,13 +697,13 @@ pub fn eval<'a>(
                         (true, v)
                     } else {
                         println!("\n---");
-                        println!("Error: stack does not exist");
+                        println!("Error on line {}, word {}: stack does not exist", line + 1, word);
                         (false, wstack)
                     }
                 }
                 None => {
                     println!("\n---");
-                    println!("Error: stack underflow");
+                    println!("Error on line {}, word {}: stack underflow", line + 1, word);
                     (false, wstack)
                 }
             }, // swap stack
@@ -710,7 +711,7 @@ pub fn eval<'a>(
                 Some(_) => (true, wstack),
                 None => {
                     println!("\n---");
-                    println!("Error: stack underflow");
+                    println!("Error on line {}, word {}: stack underflow", line + 1, word);
                     (false, wstack)
                 }
             },
@@ -722,19 +723,19 @@ pub fn eval<'a>(
                             (true, wstack)
                         } else {
                             println!("\n---");
-                            println!("Error: stack does not exist");
+                            println!("Error on line {}, word {}: stack does not exist", line + 1, word);
                             (false, wstack)
                         }
                     }
                     None => {
                         println!("\n---");
-                        println!("Error: stack underflow");
+                        println!("Error on line {}, word {}: stack underflow", line + 1, word);
                         (false, wstack)
                     }
                 },
                 None => {
                     println!("\n---");
-                    println!("Error: stack underflow");
+                    println!("Error on line {}, word {}: stack underflow", line + 1, word);
                     (false, wstack)
                 }
             },
@@ -763,7 +764,7 @@ pub fn eval<'a>(
                                             (true, wstack)
                                         } else {
                                             println!("\n---");
-                                            println!("Error: dep could not be resolved");
+                                            println!("Error on line {}, word {}: dep could not be resolved", line + 1, word);
                                             (false, wstack)
                                         }
                                     }
@@ -772,14 +773,14 @@ pub fn eval<'a>(
                             }
                             None => {
                                 println!("\n---");
-                                println!("Error: home dir could not be determined");
+                                println!("Error on line {}, word {}: home dir could not be determined", line + 1, word);
                                 (false, wstack)
                             }
                         }
                     }
                     None => {
                         println!("\n---");
-                        println!("Error: stack underflow");
+                        println!("Error on line {}, word {}: stack underflow", line + 1, word);
                         (false, wstack)
                     }
                 }
@@ -787,12 +788,12 @@ pub fn eval<'a>(
             _ => {
                 if dictionary.contains_key(&word.to_string()) {
                     let mut run: bool = true;
-                    let repn: &mut Vec<String> = &mut Vec::new();
+                    let repn: &mut Vec<(String, usize)> = &mut Vec::new();
                     let defn: &mut Word = &mut Word::blank();
-                    let ifdn: &mut Vec<String> = &mut Vec::new();
+                    let ifdn: &mut Vec<(String, usize)> = &mut Vec::new();
                     let mut wstackn = wstack.clone();
                     let moden = &mut Mode::Normal;
-                    for word in dictionary.get(&word.to_string()).cloned().unwrap() {
+                    for (word, index) in dictionary.get(&word.to_string()).cloned().unwrap() {
                         (run, wstackn) = eval(
                             word.as_str(),
                             stacks,
@@ -803,6 +804,7 @@ pub fn eval<'a>(
                             moden,
                             defn,
                             verbose,
+                            index,
                         );
                         if run == false {
                             break;
@@ -815,7 +817,7 @@ pub fn eval<'a>(
                     }
                 } else {
                     println!("\n---");
-                    println!("Error: undefined word: {}", word);
+                    println!("Error on line {}, word {}: undefined word", line + 1, word);
                     (false, wstack)
                 }
             }
@@ -840,7 +842,7 @@ pub fn eval<'a>(
         Mode::Define => match word {
             ";" => match stacks.get_mut(&"back_block".to_string()).unwrap().pop() {
                 Some(_) => {
-                    def.data.push(word.to_string());
+                    def.data.push((word.to_string(), line));
                     (true, wstack)
                 }
                 None => {
@@ -851,7 +853,7 @@ pub fn eval<'a>(
                         (true, wstack)
                     } else {
                         println!("\n---");
-                        println!("Error: invalid define");
+                        println!("Error on line {}, word {}: invalid define", line + 1, word);
                         (false, wstack)
                     }
                 }
@@ -861,7 +863,7 @@ pub fn eval<'a>(
                     .get_mut(&"back_block".to_string())
                     .unwrap()
                     .push("blk".to_string());
-                def.data.push(word.to_string());
+                def.data.push((word.to_string(), line));
                 (true, wstack)
             }
             _ => {
@@ -869,7 +871,7 @@ pub fn eval<'a>(
                     def.name = word.to_string();
                     (true, wstack)
                 } else {
-                    def.data.push(word.to_string());
+                    def.data.push((word.to_string(), line));
                     (true, wstack)
                 }
             }
@@ -877,15 +879,15 @@ pub fn eval<'a>(
         Mode::Rep => match word {
             ";" => match stacks.get_mut(&"back_block".to_string()).unwrap().pop() {
                 Some(_) => {
-                    rep.push(word.to_string());
+                    rep.push((word.to_string(), line));
                     (true, wstack)
                 }
                 None => {
                     let mut run: bool;
                     let moden = &mut Mode::Normal;
-                    let repn: &mut Vec<String> = &mut Vec::new();
+                    let repn: &mut Vec<(String, usize)> = &mut Vec::new();
                     let defn: &mut Word = &mut Word::blank();
-                    let ifdn: &mut Vec<String> = &mut Vec::new();
+                    let ifdn: &mut Vec<(String, usize)> = &mut Vec::new();
                     let mut wstackn = wstack.clone();
                     let cnt = match stacks.get_mut(&"back_rep".to_string()).unwrap().pop() {
                         Some(v) => match v.parse::<f64>() {
@@ -895,14 +897,14 @@ pub fn eval<'a>(
                             }
                             Err(_) => {
                                 println!("\n---");
-                                println!("Error: rep must take a number");
+                                println!("Error on line {}, word {}: rep must take a number", line + 1, word);
                                 run = false;
                                 0.0
                             }
                         },
                         None => {
                             println!("\n---");
-                            println!("Error: stack underflow");
+                            println!("Error on line {}, word {}: stack underflow", line + 1, word);
                             run = false;
                             0.0
                         }
@@ -917,7 +919,7 @@ pub fn eval<'a>(
                             if cnt - sb <= 0.0 {
                                 break;
                             }
-                            for word in &mut *rep {
+                            for (word, index) in &mut *rep {
                                 (run, wstackn) = eval(
                                     word.as_str(),
                                     stacks,
@@ -928,6 +930,7 @@ pub fn eval<'a>(
                                     moden,
                                     defn,
                                     verbose,
+                                    *index
                                 );
                                 if !run {
                                     break;
@@ -941,14 +944,14 @@ pub fn eval<'a>(
                                     }
                                     Err(_) => {
                                         println!("\n---");
-                                        println!("Error: rep must take a number");
+                                        println!("Error on line {}, word {}: rep must take a number", line + 1, word);
                                         run = false;
                                         cnt
                                     }
                                 },
                                 None => {
                                     println!("\n---");
-                                    println!("Error: stack underflow");
+                                    println!("Error on line {}, word {}: stack underflow", line + 1, word);
                                     run = false;
                                     cnt
                                 }
@@ -980,11 +983,11 @@ pub fn eval<'a>(
                     .get_mut(&"back_block".to_string())
                     .unwrap()
                     .push("blk".to_string());
-                rep.push(word.to_string());
+                rep.push((word.to_string(), line));
                 (true, wstack)
             }
             _ => {
-                rep.push(word.to_string());
+                rep.push((word.to_string(), line));
                 (true, wstack)
             }
         },
@@ -992,17 +995,17 @@ pub fn eval<'a>(
             true => match word {
                 ";" => match stacks.get_mut(&"back_block".to_string()).unwrap().pop() {
                     Some(_) => {
-                        ifd.push(word.to_string());
+                        ifd.push((word.to_string(), line));
                         (true, wstack)
                     }
                     None => {
                         let mut run: bool = true;
-                        let repn: &mut Vec<String> = &mut Vec::new();
+                        let repn: &mut Vec<(String, usize)> = &mut Vec::new();
                         let defn: &mut Word = &mut Word::blank();
-                        let ifdn: &mut Vec<String> = &mut Vec::new();
+                        let ifdn: &mut Vec<(String, usize)> = &mut Vec::new();
                         let mut wstackn = wstack.clone();
                         let moden = &mut Mode::Normal;
-                        for word in &mut *ifd {
+                        for (word, index) in &mut *ifd {
                             (run, wstackn) = eval(
                                 word.as_str(),
                                 stacks,
@@ -1013,6 +1016,7 @@ pub fn eval<'a>(
                                 moden,
                                 defn,
                                 verbose,
+                                *index
                             );
                             if !run {
                                 break;
@@ -1032,11 +1036,11 @@ pub fn eval<'a>(
                         .get_mut(&"back_block".to_string())
                         .unwrap()
                         .push("blk".to_string());
-                    ifd.push(word.to_string());
+                    ifd.push((word.to_string(), line));
                     (true, wstack)
                 }
                 _ => {
-                    ifd.push(word.to_string());
+                    ifd.push((word.to_string(), line));
                     (true, wstack)
                 }
             },
