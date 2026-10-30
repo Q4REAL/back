@@ -26,11 +26,11 @@ See the examples folder for a guide on syntax.
 ## Installing back
 On MacOS/Linux:
 ```shell
-curl --proto '=https' --tlsv1.2 -LsSf https://github.com/Q4REAL/back/releases/download/v0.3.0/back-installer.sh | sh
+curl --proto '=https' --tlsv1.2 -LsSf https://github.com/Q4REAL/back/releases/download/v0.3.1/back-installer.sh | sh
 ```
 Powershell (Windows):
 ```powershell
-powershell -ExecutionPolicy Bypass -c "irm https://github.com/Q4REAL/back/releases/download/v0.3.0/back-installer.ps1 | iex"
+powershell -ExecutionPolicy Bypass -c "irm https://github.com/Q4REAL/back/releases/download/v0.3.1/back-installer.ps1 | iex"
 ```
 ## Usage
 to start, create a .back file (or download one from the examples directory). Run it with
@@ -54,11 +54,11 @@ This language intents to be feature complete, even if it's not really that usabl
 
 - [x] control flow, built-in operations, stack managment
 - [x] verbose mode and basic error handling
+- [x] actually helpful error messages
 - [x] external dependencies
 - [ ] improved pattern matching
 - [ ] dependency registery (backpack package managment)
 - [ ] more advanced type control (like checking for numbers)
-- [ ] actually helpful error messages
 - [ ] advanced error handling
 - [ ] a readable verbose mode
 - [ ] FFI?
