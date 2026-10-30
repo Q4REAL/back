@@ -28,51 +28,51 @@ impl Word {
     }
 }
 
-pub fn init(stacks: &mut HashMap<String, Vec<String>>, dictionary: &mut HashMap<String, Vec<(String, usize)>>) {
+pub fn init(stacks: &mut HashMap<String, Vec<String>>, dictionary: &mut HashMap<String, (Vec<(String, usize)>, bool)>) {
     stacks.insert("main".to_string(), Vec::new());
     stacks.insert("back_rep".to_string(), Vec::new());
     stacks.insert("back_block".to_string(), Vec::new());
 
-    dictionary.insert("->".to_string(), Vec::new());
-    dictionary.insert("->>".to_string(), Vec::new());
-    dictionary.insert("<-".to_string(), Vec::new());
-    dictionary.insert("=>".to_string(), Vec::new());
-    dictionary.insert("=>>".to_string(), Vec::new());
-    dictionary.insert("<<-".to_string(), Vec::new());
-    dictionary.insert("**".to_string(), Vec::new());
-    dictionary.insert("..".to_string(), Vec::new());
-    dictionary.insert("+".to_string(), Vec::new());
-    dictionary.insert("-".to_string(), Vec::new());
-    dictionary.insert("*".to_string(), Vec::new());
-    dictionary.insert("/".to_string(), Vec::new());
-    dictionary.insert(">".to_string(), Vec::new());
-    dictionary.insert("<".to_string(), Vec::new());
-    dictionary.insert("=".to_string(), Vec::new());
-    dictionary.insert("!=".to_string(), Vec::new());
-    dictionary.insert("?".to_string(), Vec::new());
-    dictionary.insert("$".to_string(), Vec::new());
-    dictionary.insert("$$".to_string(), Vec::new());
-    dictionary.insert("$>".to_string(), Vec::new());
-    dictionary.insert("!".to_string(), Vec::new());
-    dictionary.insert("&".to_string(), Vec::new());
-    dictionary.insert("[".to_string(), Vec::new());
-    dictionary.insert("<->".to_string(), Vec::new());
-    dictionary.insert("%".to_string(), Vec::new());
-    dictionary.insert("!$!".to_string(), Vec::new());
+    dictionary.insert("->".to_string(), (Vec::new(), false));
+    dictionary.insert("->>".to_string(), (Vec::new(), false));
+    dictionary.insert("<-".to_string(), (Vec::new(), false));
+    dictionary.insert("=>".to_string(), (Vec::new(), false));
+    dictionary.insert("=>>".to_string(), (Vec::new(), false));
+    dictionary.insert("<<-".to_string(), (Vec::new(), false));
+    dictionary.insert("**".to_string(), (Vec::new(), false));
+    dictionary.insert("..".to_string(), (Vec::new(), false));
+    dictionary.insert("+".to_string(), (Vec::new(), false));
+    dictionary.insert("-".to_string(), (Vec::new(), false));
+    dictionary.insert("*".to_string(), (Vec::new(), false));
+    dictionary.insert("/".to_string(), (Vec::new(), false));
+    dictionary.insert(">".to_string(), (Vec::new(), false));
+    dictionary.insert("<".to_string(), (Vec::new(), false));
+    dictionary.insert("=".to_string(), (Vec::new(), false));
+    dictionary.insert("!=".to_string(), (Vec::new(), false));
+    dictionary.insert("?".to_string(), (Vec::new(), false));
+    dictionary.insert("$".to_string(), (Vec::new(), false));
+    dictionary.insert("$$".to_string(), (Vec::new(), false));
+    dictionary.insert("$>".to_string(), (Vec::new(), false));
+    dictionary.insert("!".to_string(), (Vec::new(), false));
+    dictionary.insert("&".to_string(), (Vec::new(), false));
+    dictionary.insert("[".to_string(), (Vec::new(), false));
+    dictionary.insert("<->".to_string(), (Vec::new(), false));
+    dictionary.insert("%".to_string(), (Vec::new(), false));
+    dictionary.insert("!$!".to_string(), (Vec::new(), false));
 }
 
 pub fn eval<'a>(
     word: &'a str,
     stacks: &mut HashMap<String, Vec<String>>,
-    wstack: String,
+    wstack: &mut String,
     ifd: &mut Vec<(String, usize)>,
     rep: &mut Vec<(String, usize)>,
-    dictionary: &mut HashMap<String, Vec<(String, usize)>>,
+    dictionary: &mut HashMap<String, (Vec<(String, usize)>, bool)>,
     mode: &mut Mode,
     def: &mut Word,
     verbose: bool,
     line: usize,
-) -> (bool, String) {
+) -> bool {
     if verbose {
         println!(
             "{:?} ({}) [ifd: {:?}, rep: {:?}, {:?}] -> {}",
@@ -81,50 +81,50 @@ pub fn eval<'a>(
     }
     match mode {
         Mode::Normal => match word {
-            "->" => match stacks.get_mut(&wstack).unwrap().pop() {
+            "->" => match stacks.get_mut(wstack).unwrap().pop() {
                 Some(v) => {
                     let nv = v.replace("~", " ");
                     print!("{}", nv);
-                    (true, wstack)
+                    true
                 }
                 None => {
                     println!("\n---");
                     println!("Error on line {}, word {}: stack underflow", line + 1, word);
-                    (false, wstack)
+                    false
                 }
             }, // print
-            "=>" => match stacks.get_mut(&wstack).unwrap().pop() {
+            "=>" => match stacks.get_mut(wstack).unwrap().pop() {
                 Some(v) => {
                     print!("{}", v);
-                    (true, wstack)
+                    true
                 }
                 None => {
                     println!("\n---");
                     println!("Error on line {}, word {}: stack underflow", line + 1, word);
-                    (false, wstack)
+                    false
                 }
             }, // litteral print
-            "->>" => match stacks.get_mut(&wstack).unwrap().pop() {
+            "->>" => match stacks.get_mut(wstack).unwrap().pop() {
                 Some(v) => {
                     let nv = v.replace("~", " ");
                     println!("{}", nv);
-                    (true, wstack)
+                    true
                 }
                 None => {
                     println!("\n---");
                     println!("Error on line {}, word {}: stack underflow", line + 1, word);
-                    (false, wstack)
+                    false
                 }
             }, // println
-            "=>>" => match stacks.get_mut(&wstack).unwrap().pop() {
+            "=>>" => match stacks.get_mut(wstack).unwrap().pop() {
                 Some(v) => {
                     println!("{}", v);
-                    (true, wstack)
+                    true
                 }
                 None => {
                     println!("\n---");
                     println!("Error on line {}, word {}: stack underflow", line + 1, word);
-                    (false, wstack)
+                    false
                 }
             }, // literal println
             "<-" => {
@@ -134,10 +134,10 @@ pub fn eval<'a>(
                 io::stdin().read_line(&mut inp).unwrap();
 
                 stacks
-                    .get_mut(&wstack)
+                    .get_mut(wstack)
                     .unwrap()
                     .push(inp.replace(" ", "~").trim().to_string());
-                (true, wstack)
+                true
             } // input
             "<<-" => {
                 let mut inp = String::new();
@@ -146,18 +146,18 @@ pub fn eval<'a>(
                 io::stdin().read_line(&mut inp).unwrap();
 
                 for item in inp.split_whitespace().collect::<Vec<_>>() {
-                    stacks.get_mut(&wstack).unwrap().push(item.to_string());
+                    stacks.get_mut(wstack).unwrap().push(item.to_string());
                 }
-                (true, wstack)
+                true
             } // literal input
             "<->" => {
-                let len = stacks.get(&wstack).unwrap().len();
-                stacks.get_mut(&wstack).unwrap().push(len.to_string());
-                (true, wstack)
+                let len = stacks.get(wstack).unwrap().len();
+                stacks.get_mut(wstack).unwrap().push(len.to_string());
+                true
             } //len
             "**" => {
                 let mut run = true;
-                let val = match stacks.get_mut(&wstack).unwrap().pop() {
+                let val = match stacks.get_mut(wstack).unwrap().pop() {
                     Some(v) => v,
                     None => {
                         println!("\n---");
@@ -167,16 +167,16 @@ pub fn eval<'a>(
                     }
                 };
                 if run == false {
-                    (false, wstack)
+                    false
                 } else {
-                    stacks.get_mut(&wstack).unwrap().push(val.clone());
-                    stacks.get_mut(&wstack).unwrap().push(val.clone());
-                    (true, wstack)
+                    stacks.get_mut(wstack).unwrap().push(val.clone());
+                    stacks.get_mut(wstack).unwrap().push(val.clone());
+                    true
                 }
             } // dub
             ".." => {
                 let mut run = true;
-                let str1 = match stacks.get_mut(&wstack).unwrap().pop() {
+                let str1 = match stacks.get_mut(wstack).unwrap().pop() {
                     Some(v) => v,
                     None => { 
                         println!("\n---");
@@ -185,7 +185,7 @@ pub fn eval<'a>(
                         "".to_string()
                     }
                 };
-                let str2 = match stacks.get_mut(&wstack).unwrap().pop() {
+                let str2 = match stacks.get_mut(wstack).unwrap().pop() {
                     Some(v) => v,
                     None => { 
                         println!("\n---");
@@ -195,17 +195,17 @@ pub fn eval<'a>(
                     }
                 };
                 if run {
-                    stacks.get_mut(&wstack).unwrap().push(format!("{}{}", str2, str1));
-                    (true, wstack)
+                    stacks.get_mut(wstack).unwrap().push(format!("{}{}", str2, str1));
+                    true
                 } else {
-                    (false, wstack)
+                    false
                 }
             } // concatination
             "+" => {
                 let mut num1 = 0.0;
                 let mut num2 = 0.0;
                 let mut run = true;
-                match stacks.get_mut(&wstack).unwrap().pop() {
+                match stacks.get_mut(wstack).unwrap().pop() {
                     Some(v) => match v.parse::<f64>() {
                         Ok(v) => num1 = v,
                         Err(_) => {
@@ -220,7 +220,7 @@ pub fn eval<'a>(
                         run = false;
                     }
                 }
-                match stacks.get_mut(&wstack).unwrap().pop() {
+                match stacks.get_mut(wstack).unwrap().pop() {
                     Some(v) => match v.parse::<f64>() {
                         Ok(v) => num2 = v,
                         Err(_) => {
@@ -236,20 +236,20 @@ pub fn eval<'a>(
                     }
                 }
                 if run == false {
-                    (false, wstack)
+                    false
                 } else {
                     stacks
-                        .get_mut(&wstack)
+                        .get_mut(wstack)
                         .unwrap()
                         .push(format!("{}", num2 + num1));
-                    (true, wstack)
+                    true
                 }
             }
             "-" => {
                 let mut num1 = 0.0;
                 let mut num2 = 0.0;
                 let mut run = true;
-                match stacks.get_mut(&wstack).unwrap().pop() {
+                match stacks.get_mut(wstack).unwrap().pop() {
                     Some(v) => match v.parse::<f64>() {
                         Ok(v) => num1 = v,
                         Err(_) => {
@@ -264,7 +264,7 @@ pub fn eval<'a>(
                         run = false;
                     }
                 }
-                match stacks.get_mut(&wstack).unwrap().pop() {
+                match stacks.get_mut(wstack).unwrap().pop() {
                     Some(v) => match v.parse::<f64>() {
                         Ok(v) => num2 = v,
                         Err(_) => {
@@ -280,20 +280,20 @@ pub fn eval<'a>(
                     }
                 }
                 if run == false {
-                    (false, wstack)
+                    false
                 } else {
                     stacks
-                        .get_mut(&wstack)
+                        .get_mut(wstack)
                         .unwrap()
                         .push(format!("{}", num2 - num1));
-                    (true, wstack)
+                    true
                 }
             }
             "*" => {
                 let mut num1 = 0.0;
                 let mut num2 = 0.0;
                 let mut run = true;
-                match stacks.get_mut(&wstack).unwrap().pop() {
+                match stacks.get_mut(wstack).unwrap().pop() {
                     Some(v) => match v.parse::<f64>() {
                         Ok(v) => num1 = v,
                         Err(_) => {
@@ -308,7 +308,7 @@ pub fn eval<'a>(
                         run = false;
                     }
                 }
-                match stacks.get_mut(&wstack).unwrap().pop() {
+                match stacks.get_mut(wstack).unwrap().pop() {
                     Some(v) => match v.parse::<f64>() {
                         Ok(v) => num2 = v,
                         Err(_) => {
@@ -324,20 +324,20 @@ pub fn eval<'a>(
                     }
                 }
                 if run == false {
-                    (false, wstack)
+                    false
                 } else {
                     stacks
-                        .get_mut(&wstack)
+                        .get_mut(wstack)
                         .unwrap()
                         .push(format!("{}", num2 * num1));
-                    (true, wstack)
+                    true
                 }
             }
             "/" => {
                 let mut num1 = 0.0;
                 let mut num2 = 0.0;
                 let mut run = true;
-                match stacks.get_mut(&wstack).unwrap().pop() {
+                match stacks.get_mut(wstack).unwrap().pop() {
                     Some(v) => match v.parse::<f64>() {
                         Ok(v) => num1 = v,
                         Err(_) => {
@@ -352,7 +352,7 @@ pub fn eval<'a>(
                         run = false;
                     }
                 }
-                match stacks.get_mut(&wstack).unwrap().pop() {
+                match stacks.get_mut(wstack).unwrap().pop() {
                     Some(v) => match v.parse::<f64>() {
                         Ok(v) => num2 = v,
                         Err(_) => {
@@ -368,20 +368,20 @@ pub fn eval<'a>(
                     }
                 }
                 if run == false {
-                    (false, wstack)
+                    false
                 } else {
                     stacks
-                        .get_mut(&wstack)
+                        .get_mut(wstack)
                         .unwrap()
                         .push(format!("{}", num2 / num1));
-                    (true, wstack)
+                    true
                 }
             }
             "%" => {
                 let mut num1 = 0.0;
                 let mut num2 = 0.0;
                 let mut run = true;
-                match stacks.get_mut(&wstack).unwrap().pop() {
+                match stacks.get_mut(wstack).unwrap().pop() {
                     Some(v) => match v.parse::<f64>() {
                         Ok(v) => num1 = v,
                         Err(_) => {
@@ -396,7 +396,7 @@ pub fn eval<'a>(
                         run = false;
                     }
                 }
-                match stacks.get_mut(&wstack).unwrap().pop() {
+                match stacks.get_mut(wstack).unwrap().pop() {
                     Some(v) => match v.parse::<f64>() {
                         Ok(v) => num2 = v,
                         Err(_) => {
@@ -412,20 +412,20 @@ pub fn eval<'a>(
                     }
                 }
                 if run == false {
-                    (false, wstack)
+                    false
                 } else {
                     stacks
-                        .get_mut(&wstack)
+                        .get_mut(wstack)
                         .unwrap()
                         .push(format!("{}", num2 % num1));
-                    (true, wstack)
+                    true
                 }
             }
             "//" => {
                 let mut num1 = 0.0;
                 let mut num2 = 0.0;
                 let mut run = true;
-                match stacks.get_mut(&wstack).unwrap().pop() {
+                match stacks.get_mut(wstack).unwrap().pop() {
                     Some(v) => match v.parse::<f64>() {
                         Ok(v) => num1 = v,
                         Err(_) => {
@@ -440,7 +440,7 @@ pub fn eval<'a>(
                         run = false;
                     }
                 }
-                match stacks.get_mut(&wstack).unwrap().pop() {
+                match stacks.get_mut(wstack).unwrap().pop() {
                     Some(v) => match v.parse::<f64>() {
                         Ok(v) => num2 = v,
                         Err(_) => {
@@ -456,50 +456,50 @@ pub fn eval<'a>(
                     }
                 }
                 if run == false {
-                    (false, wstack)
+                    false
                 } else {
                     stacks
-                        .get_mut(&wstack)
+                        .get_mut(wstack)
                         .unwrap()
                         .push(format!("{}", (num2 / num1).trunc()));
-                    (true, wstack)
+                    true
                 }
             }
             "#" => {
                 *mode = Mode::Comment;
-                (true, wstack)
+                true
             } // comment
             ":" => {
                 *mode = Mode::Define;
-                (true, wstack)
+                true
             } // define
-            "?" => match stacks.get_mut(&wstack).unwrap().pop() {
+            "?" => match stacks.get_mut(wstack).unwrap().pop() {
                 Some(v) => match v.as_str() {
                     "true" => {
                         *mode = Mode::If(true);
-                        (true, wstack)
+                        true
                     }
                     "false" => {
                         *mode = Mode::If(false);
-                        (true, wstack)
+                        true
                     }
                     _ => {
                         println!("\n---");
                         println!("Error on line {}, word {}: attempted to use ? on a non-boolean", line + 1, word);
-                        (false, wstack)
+                        false
                     }
                 },
                 None => {
                     println!("\n---");
                     println!("Error on line {}, word {}: stack underflow", line + 1, word);
-                    (false, wstack)
+                    false
                 }
             }, // if
             ">" => {
                 let mut num1 = 0.0;
                 let mut num2 = 0.0;
                 let mut run = true;
-                match stacks.get_mut(&wstack).unwrap().pop() {
+                match stacks.get_mut(wstack).unwrap().pop() {
                     Some(v) => match v.parse::<f64>() {
                         Ok(v) => num1 = v,
                         Err(_) => {
@@ -514,7 +514,7 @@ pub fn eval<'a>(
                         run = false;
                     }
                 }
-                match stacks.get_mut(&wstack).unwrap().pop() {
+                match stacks.get_mut(wstack).unwrap().pop() {
                     Some(v) => match v.parse::<f64>() {
                         Ok(v) => num2 = v,
                         Err(_) => {
@@ -530,21 +530,21 @@ pub fn eval<'a>(
                     }
                 }
                 if run == false {
-                    (false, wstack)
+                    false
                 } else {
                     if num2 > num1 {
-                        stacks.get_mut(&wstack).unwrap().push("true".to_string());
+                        stacks.get_mut(wstack).unwrap().push("true".to_string());
                     } else {
-                        stacks.get_mut(&wstack).unwrap().push("false".to_string());
+                        stacks.get_mut(wstack).unwrap().push("false".to_string());
                     }
-                    (true, wstack)
+                    true
                 }
             }
             "<" => {
                 let mut num1 = 0.0;
                 let mut num2 = 0.0;
                 let mut run = true;
-                match stacks.get_mut(&wstack).unwrap().pop() {
+                match stacks.get_mut(wstack).unwrap().pop() {
                     Some(v) => match v.parse::<f64>() {
                         Ok(v) => num1 = v,
                         Err(_) => {
@@ -559,7 +559,7 @@ pub fn eval<'a>(
                         run = false;
                     }
                 }
-                match stacks.get_mut(&wstack).unwrap().pop() {
+                match stacks.get_mut(wstack).unwrap().pop() {
                     Some(v) => match v.parse::<f64>() {
                         Ok(v) => num2 = v,
                         Err(_) => {
@@ -575,14 +575,14 @@ pub fn eval<'a>(
                     }
                 }
                 if run == false {
-                    (false, wstack)
+                    false
                 } else {
                     if num2 < num1 {
-                        stacks.get_mut(&wstack).unwrap().push("true".to_string());
+                        stacks.get_mut(wstack).unwrap().push("true".to_string());
                     } else {
-                        stacks.get_mut(&wstack).unwrap().push("false".to_string());
+                        stacks.get_mut(wstack).unwrap().push("false".to_string());
                     }
-                    (true, wstack)
+                    true
                 }
             }
             "=" => {
@@ -593,7 +593,7 @@ pub fn eval<'a>(
                 let mut str2 = String::new();
                 let mut run = true;
                 let mut nums = true;
-                match stacks.get_mut(&wstack).unwrap().pop() {
+                match stacks.get_mut(wstack).unwrap().pop() {
                     Some(v) => match v.parse::<f64>() {
                         Ok(v) => num1 = v,
                         Err(_) => {
@@ -607,7 +607,7 @@ pub fn eval<'a>(
                         run = false;
                     }
                 }
-                match stacks.get_mut(&wstack).unwrap().pop() {
+                match stacks.get_mut(wstack).unwrap().pop() {
                     Some(v) => match v.parse::<f64>() {
                         Ok(v) => num2 = v,
                         Err(_) => {
@@ -622,22 +622,22 @@ pub fn eval<'a>(
                     }
                 }
                 if run == false {
-                    (false, wstack)
+                    false
                 } else {
                     if nums {
                         if num2 == num1 {
-                            stacks.get_mut(&wstack).unwrap().push("true".to_string());
+                            stacks.get_mut(wstack).unwrap().push("true".to_string());
                         } else {
-                            stacks.get_mut(&wstack).unwrap().push("false".to_string());
+                            stacks.get_mut(wstack).unwrap().push("false".to_string());
                         }
                     } else {
                         if str2 == str1 {
-                            stacks.get_mut(&wstack).unwrap().push("true".to_string());
+                            stacks.get_mut(wstack).unwrap().push("true".to_string());
                         } else {
-                            stacks.get_mut(&wstack).unwrap().push("false".to_string());
+                            stacks.get_mut(wstack).unwrap().push("false".to_string());
                         }
                     }
-                    (true, wstack)
+                    true
                 }
             }
             "!=" => {
@@ -647,7 +647,7 @@ pub fn eval<'a>(
                 let mut str2 = String::new();
                 let mut run = true;
                 let mut nums = true;
-                match stacks.get_mut(&wstack).unwrap().pop() {
+                match stacks.get_mut(wstack).unwrap().pop() {
                     Some(v) => match v.parse::<f64>() {
                         Ok(v) => num1 = v,
                         Err(_) => {
@@ -661,7 +661,7 @@ pub fn eval<'a>(
                         run = false;
                     }
                 }
-                match stacks.get_mut(&wstack).unwrap().pop() {
+                match stacks.get_mut(wstack).unwrap().pop() {
                     Some(v) => match v.parse::<f64>() {
                         Ok(v) => num2 = v,
                         Err(_) => {
@@ -676,25 +676,25 @@ pub fn eval<'a>(
                     }
                 }
                 if run == false {
-                    (false, wstack)
+                    false
                 } else {
                     if nums {
                         if num2 != num1 {
-                            stacks.get_mut(&wstack).unwrap().push("true".to_string());
+                            stacks.get_mut(wstack).unwrap().push("true".to_string());
                         } else {
-                            stacks.get_mut(&wstack).unwrap().push("false".to_string());
+                            stacks.get_mut(wstack).unwrap().push("false".to_string());
                         }
                     } else {
                         if str2 != str1 {
-                            stacks.get_mut(&wstack).unwrap().push("true".to_string());
+                            stacks.get_mut(wstack).unwrap().push("true".to_string());
                         } else {
-                            stacks.get_mut(&wstack).unwrap().push("false".to_string());
+                            stacks.get_mut(wstack).unwrap().push("false".to_string());
                         }
                     }
-                    (true, wstack)
+                    true
                 }
             }
-            "&" => match stacks.get_mut(&wstack).unwrap().pop() {
+            "&" => match stacks.get_mut(wstack).unwrap().pop() {
                 Some(v) => {
                     if stacks.contains_key(&"back_rep".to_string()) {
                         match v.parse::<f64>() {
@@ -704,167 +704,169 @@ pub fn eval<'a>(
                                     .unwrap()
                                     .push(format!("{}", v));
                                 *mode = Mode::Rep;
-                                (true, wstack)
+                                true
                             }
                             Err(_) => {
                                 println!("\n---");
                                 println!("Error on line {}, word {}: rep must take a number", line + 1, word);
-                                (false, wstack)
+                                false
                             }
                         }
                     } else {
                         println!("\n---");
                         println!("Error on line {}, word {}: rep stack is nonexistant", line + 1, word);
-                        (false, wstack)
+                        false
                     }
                 }
                 None => {
                     println!("\n---");
                     println!("Error on line {}, word {}: stack underflow", line + 1, word);
-                    (false, wstack)
+                    false
                 }
             }, // for
-            "$$" => match stacks.get_mut(&wstack).unwrap().pop() {
+            "$$" => match stacks.get_mut(wstack).unwrap().pop() {
                 Some(v) => {
                     if !stacks.contains_key(&v) {
                         stacks.insert(v, Vec::new());
                     }
-                    (true, wstack)
+                    true
                 }
                 None => {
                     println!("\n---");
                     println!("Error on line {}, word {}: stack underflow", line + 1, word);
-                    (false, wstack)
+                    false
                 }
             }, // new stack
-            "$" => match stacks.get_mut(&wstack).unwrap().pop() {
+            "$" => match stacks.get_mut(wstack).unwrap().pop() {
                 Some(v) => {
                     if stacks.contains_key(&v) {
-                        (true, v)
+                        *wstack = v;
+                        true
                     } else {
                         println!("\n---");
                         println!("Error on line {}, word {}: stack does not exist", line + 1, word);
-                        (false, wstack)
+                        false
                     }
                 }
                 None => {
                     println!("\n---");
                     println!("Error on line {}, word {}: stack underflow", line + 1, word);
-                    (false, wstack)
+                    false
                 }
             }, // swap stack
-            "!" => match stacks.get_mut(&wstack).unwrap().pop() {
-                Some(_) => (true, wstack),
+            "!" => match stacks.get_mut(wstack).unwrap().pop() {
+                Some(_) => true,
                 None => {
                     println!("\n---");
                     println!("Error on line {}, word {}: stack underflow", line + 1, word);
-                    (false, wstack)
+                    false
                 }
             },
-            "!$!" => match stacks.get_mut(&wstack).unwrap().pop() {
+            "!$!" => match stacks.get_mut(wstack).unwrap().pop() {
                 Some(v) => {
                     if stacks.contains_key(&v) {
                         if v == String::from("main") || v == String::from("back_rep") || v == String::from("back_block") {
                             println!("\n---");
                             println!("Error on line {}, word {}: attempted to delete a vital stack", line + 1, word);
-                            (false, wstack)
+                            false
                         } else {
                             stacks.remove(&v);
-                            (true, "main".to_string())
+                            *wstack = "main".to_string();
+                            true
                         }
                     } else {
                         println!("\n---");
                         println!("Error on line {}, word {}: stack does not exist", line + 1, word);
-                        (false, wstack)
+                        false
                     }
                 }
                 None => {
                     println!("\n---");
                     println!("Error on line {}, word {}: stack underflow", line + 1, word);
-                    (false, wstack)
+                    false
                 }
             }
             "$**" => {
-                stacks.get_mut(&wstack).unwrap().push(wstack.clone());
-                (true, wstack)
+                stacks.get_mut(wstack).unwrap().push(wstack.clone());
+                true
             } // push stack name
-            "$>" => match stacks.get_mut(&wstack).unwrap().pop() {
-                Some(s) => match stacks.get_mut(&wstack).unwrap().pop() {
+            "$>" => match stacks.get_mut(wstack).unwrap().pop() {
+                Some(s) => match stacks.get_mut(wstack).unwrap().pop() {
                     Some(v) => {
                         if stacks.contains_key(&s) {
                             stacks.get_mut(&s).unwrap().push(v);
-                            (true, wstack)
+                            true
                         } else {
                             println!("\n---");
                             println!("Error on line {}, word {}: stack does not exist", line + 1, word);
-                            (false, wstack)
+                            false
                         }
                     }
                     None => {
                         println!("\n---");
                         println!("Error on line {}, word {}: stack underflow", line + 1, word);
-                        (false, wstack)
+                        false
                     }
                 }, 
                 None => {
                     println!("\n---");
                     println!("Error on line {}, word {}: stack underflow", line + 1, word);
-                    (false, wstack)
+                    false
                 }
             },
-            "$<" => match stacks.get_mut(&wstack).unwrap().pop() {
+            "$<" => match stacks.get_mut(wstack).unwrap().pop() {
                 Some(s) => {
                     if stacks.contains_key(&s) {
                         match stacks.get_mut(&s).unwrap().pop() {
                             Some(v) => {
-                                stacks.get_mut(&wstack).unwrap().push(v);
-                                (true, wstack)
+                                stacks.get_mut(wstack).unwrap().push(v);
+                                true
                             }
                             None => {
                                 println!("\n---");
                                 println!("Error on line {}, word {}: stack underflow in pulling stack", line + 1, word);
-                                (false, wstack)
+                                false
                             }
                         }
                     } else {
                         println!("\n---");
                         println!("Error on line {}, word {}: stack does not exist", line + 1, word);
-                        (false, wstack)
+                        false
                     }
                 },
                 None => {
                     println!("\n---");
                     println!("Error on line {}, word {}: stack underflow", line + 1, word);
-                    (false, wstack)
+                    false
                 }
             }, // pulls from provided stack
             "[" => {
                 *mode = Mode::Push;
-                (true, wstack)
+                true
             }
             "@" => {
-                match stacks.get_mut(&wstack).unwrap().pop() {
+                match stacks.get_mut(wstack).unwrap().pop() {
                     Some(v) => {
                         match home_dir() {
                             Some(p) => {
                                 let path = p.join(Path::new(&format!(".backdeps/{}", v)));
                                 if path.exists() && path.is_dir() {
                                     let _ = crate::dep_man::open_dirs(&path, dictionary);
-                                    (true, wstack)
+                                    true
                                 } else {
                                     let mut pathf = path.clone();
                                     pathf.add_extension("back");
                                     if pathf.exists() && pathf.is_file() {
                                         crate::dep_man::open_file(&pathf, None, dictionary);
-                                        (true, wstack)
+                                        true
                                     } else {
                                         if path.parent().unwrap().with_extension("back").exists() && path.parent().unwrap().with_extension("back").is_file() {
                                             crate::dep_man::open_file(&path.parent().unwrap().with_extension("back"), Some(&path.file_name().unwrap().to_string_lossy()), dictionary);
-                                            (true, wstack)
+                                            true
                                         } else {
                                             println!("\n---");
                                             println!("Error on line {}, word {}: dep could not be resolved", line + 1, word);
-                                            (false, wstack)
+                                            false
                                         }
                                     }
                                 }
@@ -873,14 +875,14 @@ pub fn eval<'a>(
                             None => {
                                 println!("\n---");
                                 println!("Error on line {}, word {}: home dir could not be determined", line + 1, word);
-                                (false, wstack)
+                                false
                             }
                         }
                     }
                     None => {
                         println!("\n---");
                         println!("Error on line {}, word {}: stack underflow", line + 1, word);
-                        (false, wstack)
+                        false
                     }
                 }
             }
@@ -892,68 +894,93 @@ pub fn eval<'a>(
                     let ifdn: &mut Vec<(String, usize)> = &mut Vec::new();
                     let mut wstackn = wstack.clone();
                     let moden = &mut Mode::Normal;
-                    for (word, index) in dictionary.get(&word.to_string()).cloned().unwrap() {
-                        (run, wstackn) = eval(
-                            word.as_str(),
-                            stacks,
-                            wstackn,
-                            ifdn,
-                            repn,
-                            dictionary,
-                            moden,
-                            defn,
-                            verbose,
-                            index,
-                        );
-                        if run == false {
-                            break;
+                    let (defdata, manstack) = dictionary.get(&word.to_string()).cloned().unwrap();
+                    if !manstack {
+                        for (word, index) in defdata {
+                            run = eval(
+                                word.as_str(),
+                                stacks,
+                                &mut wstackn,
+                                ifdn,
+                                repn,
+                                dictionary,
+                                moden,
+                                defn,
+                                verbose,
+                                index,
+                            );
+                            if run == false {
+                                break;
+                            }
+                        }
+                    } else {
+                        for (word, index) in defdata {
+                            run = eval(
+                                word.as_str(),
+                                stacks,
+                                wstack,
+                                ifdn,
+                                repn,
+                                dictionary,
+                                moden,
+                                defn,
+                                verbose,
+                                index,
+                            );
+                            if run == false {
+                                break;
+                            }
                         }
                     }
                     if run == false {
-                        (false, wstack)
+                        false
                     } else {
-                        (true, wstack)
+                        true
                     }
                 } else {
                     println!("\n---");
                     println!("Error on line {}, word {}: undefined word", line + 1, word);
-                    (false, wstack)
+                    false
                 }
             }
         },
         Mode::Push => match word {
             "]" => {
                 *mode = Mode::Normal;
-                (true, wstack)
+                true
             }
             _ => {
-                stacks.get_mut(&wstack).unwrap().push(word.to_string());
-                (true, wstack)
+                stacks.get_mut(wstack).unwrap().push(word.to_string());
+                true
             }
         },
         Mode::Comment => match word {
             "#" => {
                 *mode = Mode::Normal;
-                (true, wstack)
+                true
             }
-            _ => (true, wstack),
+            _ => true,
         },
         Mode::Define => match word {
-            ";" => match stacks.get_mut(&"back_block".to_string()).unwrap().pop() {
+            ";" | ":;" => match stacks.get_mut(&"back_block".to_string()).unwrap().pop() {
                 Some(_) => {
                     def.data.push((word.to_string(), line));
-                    (true, wstack)
+                    true
                 }
                 None => {
                     if def.name != "" && def.data.len() > 0 {
-                        dictionary.insert(def.name.clone(), def.data.clone());
+                        if word == ":;" {
+                            dictionary.insert(def.name.clone(), (def.data.clone(), true));
+                        } else {
+                            dictionary.insert(def.name.clone(), (def.data.clone(), false));
+                        }
                         *mode = Mode::Normal;
                         *def = Word::blank();
-                        (true, wstack)
+                        true
                     } else {
                         println!("\n---");
                         println!("Error on line {}, word {}: invalid define", line + 1, word);
-                        (false, wstack)
+                        false
                     }
                 }
             },
@@ -963,31 +990,31 @@ pub fn eval<'a>(
                     .unwrap()
                     .push("blk".to_string());
                 def.data.push((word.to_string(), line));
-                (true, wstack)
+                true
             }
             _ => {
                 if def.name == "" {
                     def.name = word.to_string();
-                    (true, wstack)
+                    true
                 } else {
                     def.data.push((word.to_string(), line));
-                    (true, wstack)
+                    true
                 }
             }
         },
         Mode::Rep => match word {
-            ";" => match stacks.get_mut(&"back_block".to_string()).unwrap().pop() {
+            ";" | ":;" => match stacks.get_mut(&"back_block".to_string()).unwrap().pop() {
                 Some(_) => {
                     rep.push((word.to_string(), line));
-                    (true, wstack)
+                    true
                 }
                 None => {
                     let mut run: bool;
                     let moden = &mut Mode::Normal;
                     let repn: &mut Vec<(String, usize)> = &mut Vec::new();
+                    let mut wstackn = wstack.clone();
                     let defn: &mut Word = &mut Word::blank();
                     let ifdn: &mut Vec<(String, usize)> = &mut Vec::new();
-                    let mut wstackn = wstack.clone();
                     let cnt = match stacks.get_mut(&"back_rep".to_string()).unwrap().pop() {
                         Some(v) => match v.parse::<f64>() {
                             Ok(v) => {
@@ -1018,21 +1045,41 @@ pub fn eval<'a>(
                             if cnt - sb <= 0.0 {
                                 break;
                             }
-                            for (word, index) in &mut *rep {
-                                (run, wstackn) = eval(
-                                    word.as_str(),
-                                    stacks,
-                                    wstackn,
-                                    ifdn,
-                                    repn,
-                                    dictionary,
-                                    moden,
-                                    defn,
-                                    verbose,
-                                    *index
-                                );
-                                if !run {
-                                    break;
+                            if word == ";" {
+                                for (word, index) in &mut *rep {
+                                    run = eval(
+                                        word.as_str(),
+                                        stacks,
+                                        &mut wstackn,
+                                        ifdn,
+                                        repn,
+                                        dictionary,
+                                        moden,
+                                        defn,
+                                        verbose,
+                                        *index
+                                    );
+                                    if !run {
+                                        break;
+                                    }
+                                }
+                            } else {
+                                for (word, index) in &mut *rep {
+                                    run = eval(
+                                        word.as_str(),
+                                        stacks,
+                                        wstack,
+                                        ifdn,
+                                        repn,
+                                        dictionary,
+                                        moden,
+                                        defn,
+                                        verbose,
+                                        *index
+                                    );
+                                    if !run {
+                                        break;
+                                    }
                                 }
                             }
                             sb = match stacks.get_mut(&"back_rep".to_string()).unwrap().pop() {
@@ -1062,7 +1109,7 @@ pub fn eval<'a>(
 
                         }
                         if !run {
-                            (false, wstack)
+                            false
                         } else {
                             *mode = Mode::Normal;
                             *rep = Vec::new();
@@ -1070,10 +1117,10 @@ pub fn eval<'a>(
                                 .get_mut(&"back_rep".to_string())
                                 .unwrap()
                                 .pop();
-                            (true, wstack)
+                            true
                         }
                     } else {
-                        (false, wstack)
+                        false
                     }
                 }
             },
@@ -1083,19 +1130,19 @@ pub fn eval<'a>(
                     .unwrap()
                     .push("blk".to_string());
                 rep.push((word.to_string(), line));
-                (true, wstack)
+                true
             }
             _ => {
                 rep.push((word.to_string(), line));
-                (true, wstack)
+                true
             }
         },
         Mode::If(b) => match b {
             true => match word {
-                ";" => match stacks.get_mut(&"back_block".to_string()).unwrap().pop() {
+                ";" | ":;" => match stacks.get_mut(&"back_block".to_string()).unwrap().pop() {
                     Some(_) => {
                         ifd.push((word.to_string(), line));
-                        (true, wstack)
+                        true
                     }
                     None => {
                         let mut run: bool = true;
@@ -1104,29 +1151,49 @@ pub fn eval<'a>(
                         let ifdn: &mut Vec<(String, usize)> = &mut Vec::new();
                         let mut wstackn = wstack.clone();
                         let moden = &mut Mode::Normal;
-                        for (word, index) in &mut *ifd {
-                            (run, wstackn) = eval(
-                                word.as_str(),
-                                stacks,
-                                wstackn,
-                                ifdn,
-                                repn,
-                                dictionary,
-                                moden,
-                                defn,
-                                verbose,
-                                *index
-                            );
-                            if !run {
-                                break;
+                        if word == ";" {
+                            for (word, index) in &mut *ifd {
+                                run = eval(
+                                    word.as_str(),
+                                    stacks,
+                                    &mut wstackn,
+                                    ifdn,
+                                    repn,
+                                    dictionary,
+                                    moden,
+                                    defn,
+                                    verbose,
+                                    *index
+                                );
+                                if !run {
+                                    break;
+                                }
+                            }
+                        } else {
+                            for (word, index) in &mut *ifd {
+                                run = eval(
+                                    word.as_str(),
+                                    stacks,
+                                    wstack,
+                                    ifdn,
+                                    repn,
+                                    dictionary,
+                                    moden,
+                                    defn,
+                                    verbose,
+                                    *index
+                                );
+                                if !run {
+                                    break;
+                                }
                             }
                         }
                         if !run {
-                            (false, wstack)
+                            false
                         } else {
                             *ifd = Vec::new();
                             *mode = Mode::Normal;
-                            (true, wstack)
+                            true
                         }
                     }
                 },
@@ -1136,19 +1203,19 @@ pub fn eval<'a>(
                         .unwrap()
                         .push("blk".to_string());
                     ifd.push((word.to_string(), line));
-                    (true, wstack)
+                    true
                 }
                 _ => {
                     ifd.push((word.to_string(), line));
-                    (true, wstack)
+                    true
                 }
             },
             false => match word {
-                ";" => match stacks.get_mut(&"back_block".to_string()).unwrap().pop() {
-                    Some(_) => (true, wstack),
+                ";" | ":;" => match stacks.get_mut(&"back_block".to_string()).unwrap().pop() {
+                    Some(_) => true,
                     None => {
                         *mode = Mode::Normal;
-                        (true, wstack)
+                        true
                     }
                 },
                 "&" | "?" | ":" => {
@@ -1156,9 +1223,9 @@ pub fn eval<'a>(
                         .get_mut(&"back_block".to_string())
                         .unwrap()
                         .push("blk".to_string());
-                    (true, wstack)
+                    true
                 }
-                _ => (true, wstack),
+                _ => true,
             },
         },
     }

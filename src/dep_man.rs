@@ -8,7 +8,7 @@ use std::io::ErrorKind;
 use dirs::home_dir;
 use crate::eval::Word;
 
-pub fn open_dirs(path: &Path, dictionary: &mut HashMap<String, Vec<(String, usize)>>) -> io::Result<()> {
+pub fn open_dirs(path: &Path, dictionary: &mut HashMap<String, (Vec<(String, usize)>, bool)>) -> io::Result<()> {
     for node in fs::read_dir(path)? {
         match node {
             Ok(n) => {
@@ -32,7 +32,7 @@ pub fn open_dirs(path: &Path, dictionary: &mut HashMap<String, Vec<(String, usiz
     Ok(())
 }
 
-pub fn open_file(path: &Path, request: Option<&str>, dictionary: &mut HashMap<String, Vec<(String, usize)>>) {
+pub fn open_file(path: &Path, request: Option<&str>, dictionary: &mut HashMap<String, (Vec<(String, usize)>, bool)>) {
     match home_dir() {
         Some(home) => {
             match File::open(path) {
@@ -44,6 +44,7 @@ pub fn open_file(path: &Path, request: Option<&str>, dictionary: &mut HashMap<St
                         match result {
                             Ok(line) => {
                                 let mut i = 0;
+                                let mut manstack: bool = false;
                                 for word in line.split_whitespace() {
                                     if i != 0 && i != line.split_whitespace().collect::<Vec<&str>>().len() - 1 {
                                         if i == 1 {
@@ -58,13 +59,18 @@ pub fn open_file(path: &Path, request: Option<&str>, dictionary: &mut HashMap<St
                                         } else {
                                             def.data.push((word.to_string(), index))
                                         }
-                                    }
+                                    } else if i != 0 {
+                                        match word {
+                                            ":;" => manstack = true,
+                                            _ => manstack = false,
+                                        }
+                                    } 
                                     i += 1;
                                 }
                                 if def.name.is_empty() {
                                     *def = Word::blank()
                                 } else {
-                                    dictionary.insert(format!("{}/{}", path.strip_prefix(home.join(".backdeps/")).unwrap().with_extension("").display(), def.name.clone()), def.data.clone());
+                                    dictionary.insert(format!("{}/{}", path.strip_prefix(home.join(".backdeps/")).unwrap().with_extension("").display(), def.name.clone()), (def.data.clone(), manstack));
                                 }
                                 if !run {
                                     break
@@ -143,7 +149,7 @@ fn parse_file(file: File, path: &Path) {
                 for word in line.split_whitespace() {
                     if collecting {
                         match word {
-                            ";" => match blk.pop() {
+                            ";" | ":;" => match blk.pop() {
                                 Some(_) => {
                                     def.push_str(format!("{} ", word).as_str());
                                 }
@@ -162,9 +168,14 @@ fn parse_file(file: File, path: &Path) {
                                                         .open(format!("{}", path.display())).unwrap()),
                                                 Err(e) => {println!("Error: {}", e); None}
                                             };
+                                        let structure = if word == ";" {
+                                            format!(": {};\n", def)
+                                        } else {
+                                            format!(": {}:;\n", def)
+                                        };
                                         if !file.is_none() {
-                                            match write!(file.unwrap(), "{}", format!(": {};\n", def)) {
-                                                Ok(_) => {println!("{}", format!(": {} ;\n", def))},
+                                            match write!(file.unwrap(), "{}", structure) {
+                                                Ok(_) => {println!("{}", structure)},
                                                 Err(e) => println!("Error writing to file {}: {}", path.display(), e)
                                             }
                                         }

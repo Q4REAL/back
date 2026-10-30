@@ -33,7 +33,7 @@ fn main() {
     let args = Args::parse();
     match args.sub {
         Subs::Run { file , verbose} => {
-            let mut dictionary: HashMap<String, Vec<(String, usize)>> = HashMap::new();
+            let mut dictionary: HashMap<String, (Vec<(String, usize)>, bool)> = HashMap::new();
             let mut stacks: HashMap<String, Vec<String>> = HashMap::new();
             let mut wstack: String = "main".to_string();
             let mut run: bool = true;
@@ -53,10 +53,10 @@ fn main() {
                 match result {
                     Ok(line) => {
                         for item in line.split_whitespace() {
-                            (run, wstack) = eval::eval(
+                            run = eval::eval(
                                 item,
                                 &mut stacks,
-                                wstack,
+                                &mut wstack,
                                 &mut ifd,
                                 &mut rep,
                                 &mut dictionary,
